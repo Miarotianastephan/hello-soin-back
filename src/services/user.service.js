@@ -1,4 +1,6 @@
-const User = require("../models/user.model");
+const db = require('../models');
+const User = db.User;
+
 
 exports.checkExistEmail = async (emailToVerify) => {
     try {

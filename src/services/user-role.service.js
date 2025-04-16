@@ -1,6 +1,7 @@
-const UserRole = require('../models/user-role.model');
+const db = require('../models');
+const UserRole = db.UserRole;
 
-exports.getRoleByName = async (roleName) => {
+exports.getRoleByName = async (roleName) => {   
     try {
         const role = await UserRole.findOne({
             where: { designation: roleName }

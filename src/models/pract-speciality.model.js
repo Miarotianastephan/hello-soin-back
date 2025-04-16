@@ -10,7 +10,6 @@ const PractSpeciality = sequelize.define('PractSpeciality', {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
-    allowNull: false
   },
   id_speciality: {
     type: DataTypes.INTEGER,
@@ -26,23 +25,25 @@ const PractSpeciality = sequelize.define('PractSpeciality', {
   },
   created_at: {
     type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
+  },
+  updated_at: {
+    type: DataTypes.DATE,
     allowNull: true
   },
   deleted_at: {
     type: DataTypes.DATE,
     allowNull: true
+  },
+  is_main: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0
   }
 }, {
   tableName: 'pract_specialities',
   timestamps: false
 });
-
-// Relations
-Speciality.hasMany(PractSpeciality, { foreignKey: 'id_speciality' });
-PractSpeciality.belongsTo(Speciality, { foreignKey: 'id_speciality' });
-
-PractitionerInfo.hasMany(PractSpeciality, { foreignKey: 'id_pract_info' });
-PractSpeciality.belongsTo(PractitionerInfo, { foreignKey: 'id_pract_info' });
-
 
 module.exports = PractSpeciality;

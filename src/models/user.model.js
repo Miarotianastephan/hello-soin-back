@@ -88,15 +88,4 @@ const User = sequelize.define('User', {
   timestamps: false,
 });
 
-// Déclaration de la relation
-User.belongsTo(UserRole, { //MANYTOONE
-  foreignKey: 'id_user_role',
-  as: 'role',
-});
-
-User.hasOne(PractitionerInfo, { //ONETOONE
-  foreignKey: 'id_user',
-  as: 'practitioner_info'
-});
-
 module.exports = User;

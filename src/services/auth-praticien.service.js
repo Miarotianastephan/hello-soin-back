@@ -1,16 +1,18 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { jwtSecret } = require('../config/auth');
+const db = require('../models');
 
-const PractitionerInfo  = require("../models/practitioner-info.model");
+
 const UserRoleService = require("./user-role.service");
 const UserService = require("./user.service");
-const PractSpeciality = require("../models/pract-speciality.model");
-const User = require("../models/user.model");
+const PractitionerInfo  = db.PractitionerInfo;
+const PractSpeciality = db.PractSpeciality;
+const User = db.User;
 
 exports.registerPraticien = async (requestData) => {
     try {
-        await UserService.checkExistEmail(requestData.email);
+        await UserService.checkExistEmail(requestData.mail);
 
         const role = await UserRoleService.getRoleByName("praticien");
         const roleId = role.id_user_role;
@@ -69,6 +71,7 @@ async function createPractitionerInfo(data, specialityIds = []) {
         const links = specialityIds.map(id => ({
           id_pract_info: practitioner.id_pract_info,
           id_speciality: id,
+          is_main: 1, // pratique par defaut lors de l'inscription
           created_at: new Date()
         }));
         await PractSpeciality.bulkCreate(links, { transaction });

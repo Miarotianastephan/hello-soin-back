@@ -67,16 +67,4 @@ const PractitionerInfo = sequelize.define('PractitionerInfo', {
   timestamps: false
 });
 
-PractitionerInfo.belongsTo(User, {
-    foreignKey: 'id_user',
-    as: 'user'
-});
-
-PractitionerInfo.belongsToMany(Speciality, {
-    through: PractSpeciality,
-    foreignKey: 'id_pract_info',
-    otherKey: 'id_speciality',
-    as: 'specialities'
-});
-
 module.exports = PractitionerInfo;

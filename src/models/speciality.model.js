@@ -30,11 +30,4 @@ const Speciality = sequelize.define('Speciality', {
   timestamps: false, // car les colonnes de dates ne sont pas les timestamps Sequelize standards
 });
 
-Speciality.belongsToMany(PractitionerInfo, {
-    through: PractSpeciality,
-    foreignKey: 'id_speciality',
-    otherKey: 'id_pract_info',
-    as: 'practitioners'
-});
-
 module.exports = Speciality;

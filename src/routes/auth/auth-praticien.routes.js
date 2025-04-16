@@ -5,3 +5,5 @@ const AuthPraticienController = require("../../controllers/auth-praticien.contro
 
 router.post("/register", AuthPraticienController.register);
 router.post("/login", AuthPraticienController.login);
+
+module.exports = router;
