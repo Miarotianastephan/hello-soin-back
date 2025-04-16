@@ -65,8 +65,13 @@ const User = sequelize.define('User', {
   is_validated: {
     type: DataTypes.INTEGER,
     allowNull: true,
+    defaultValue: 0
   },
   deleted_at: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+  updated_at: {
     type: DataTypes.DATE,
     allowNull: true,
   },

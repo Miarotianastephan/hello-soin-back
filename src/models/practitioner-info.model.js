@@ -9,7 +9,6 @@ const PractitionerInfo = sequelize.define('PractitionerInfo', {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
-    allowNull: false
   },
   profil_description: {
     type: DataTypes.TEXT,
@@ -36,6 +35,10 @@ const PractitionerInfo = sequelize.define('PractitionerInfo', {
     allowNull: true
   },
   updated_at: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  created_at: {
     type: DataTypes.DATE,
     allowNull: true
   },
