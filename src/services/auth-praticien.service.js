@@ -117,8 +117,8 @@ exports.login = async (mail, password) => {
         return result;
   
     } catch (error) {
-      console.error('Erreur lors de la connexion :', error);
-      throw error;
+        console.error('Erreur lors de la connexion :', error);
+        throw error;
     }
 };
   
