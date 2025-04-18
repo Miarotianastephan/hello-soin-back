@@ -1,4 +1,4 @@
-const AuthPraticienService = require("../services/auth-praticien.service")
+const AuthPraticienService = require("../services/auth-praticien.service");
 
 exports.register = async(req, res) => {
     try {

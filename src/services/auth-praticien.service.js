@@ -6,12 +6,17 @@ const db = require('../models');
 
 const UserRoleService = require("./user-role.service");
 const UserService = require("./user.service");
+const { isMailValidated } = require('./email-sender.service');
 const PractitionerInfo  = db.PractitionerInfo;
 const PractSpeciality = db.PractSpeciality;
 const User = db.User;
 
 exports.registerPraticien = async (requestData) => {
     try {
+        
+        if (!(await isMailValidated(requestData.mail))) { // vérification si le mail est validée
+            throw new Error('Adresse mail non validée');
+        }
         await UserService.checkExistEmail(requestData.mail);
 
         const role = await UserRoleService.getRoleByName("praticien");
@@ -121,4 +126,3 @@ exports.login = async (mail, password) => {
         throw error;
     }
 };
-  

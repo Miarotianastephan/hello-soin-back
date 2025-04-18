@@ -7,6 +7,7 @@ const UserRole = require('./user-role.model');
 const PractitionerInfo = require('./practitioner-info.model');
 const Speciality = require('./speciality.model');
 const PractSpeciality = require('./pract-speciality.model');
+const EmailValidationCode = require('./email-validation-code.model');
 
 // Associations
 User.belongsTo(UserRole, { foreignKey: 'id_user_role', as: 'role' });
@@ -41,5 +42,6 @@ module.exports = {
   UserRole,
   PractitionerInfo,
   Speciality,
-  PractSpeciality
+  PractSpeciality,
+  EmailValidationCode
 };
