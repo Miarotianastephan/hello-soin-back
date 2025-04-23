@@ -5,5 +5,5 @@ const AuthPraticienController = require("../../controllers/auth-praticien.contro
 
 router.post("/register", AuthPraticienController.register); // test oke register (sans validation d'email) 
 router.post("/login", AuthPraticienController.login); // test oke login 
-
+router.post("/emailLogin", AuthPraticienController.loginByEmail); // test oke login 
 module.exports = router;

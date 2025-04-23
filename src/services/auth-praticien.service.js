@@ -126,3 +126,46 @@ exports.login = async (mail, password) => {
         throw error;
     }
 };
+
+exports.loginByEmail = async (mail) => {
+    try {
+      // 1. Vérifier que l’email a bien été validé (via votre email-sender.service)
+      if (!(await isMailValidated(mail))) {
+        throw new Error('Adresse mail non validée.');
+      }
+  
+      // 2. Vérifier que l’email existe déjà (checkExistEmail lève une erreur si non)
+   
+  
+      // 3. Récupérer l’utilisateur (sans mot de passe)
+      const user = await User.findOne({
+        where: { mail },
+        include: ['role', 'practitioner_info']
+      });
+      if (!user) {
+        // théoriquement on ne devrait jamais y arriver
+        throw new Error('Utilisateur non trouvé malgré checkExistEmail.');
+      }
+  
+      // 4. Générer un token JWT
+      const token = jwt.sign(
+        { id_user: user.id_user, role: user.id_user_role },
+        jwtSecret,
+        { expiresIn: '2h' }
+      );
+  
+      // 5. Nettoyer les données renvoyées
+      const userData = user.toJSON();
+      delete userData.password;
+  
+      return {
+        message: 'Connexion réussie.',
+        token,
+        user: userData
+      };
+  
+    } catch (error) {
+      console.error('Erreur lors du login par email :', error);
+      throw error;
+    }
+  };

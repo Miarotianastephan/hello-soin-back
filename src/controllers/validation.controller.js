@@ -16,7 +16,10 @@ exports.verifyCode = async (req, res) => {
     try {
         const { mail, code } = req.body;
         await EmailSenderService.verifyCode(mail, code);
-        res.status(200).json({ message: 'Code validé, vous pouvez finaliser votre inscription.' });
+        res.status(200).json({ 
+            message: 'Code validé, vous pouvez finaliser votre inscription.',
+            status : true
+        });
     } catch (error) {
         res.status(200).json({ message: error.message || 'Code non validé, veuillez entrer le bon code.' });
     }

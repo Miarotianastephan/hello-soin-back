@@ -11,7 +11,7 @@ exports.register = async(req, res) => {
             token: result.token,
             user: result.user,
             praticien: result.praticien
-          });
+        });
     } catch (error) {
         res.status(401).json({
             success: false,
@@ -38,3 +38,22 @@ exports.login = async(req,res) => {
         });
     }
 }
+
+exports.loginByEmail = async (req, res) => {
+    try {
+      const { mail } = req.body;
+      const result = await AuthPraticienService.loginByEmail(mail);
+      console.log(result.message);
+      res.status(200).json({
+        success: true,
+        message: "Connexion sans mot de passe réussie",
+        token: result.token,
+        user: result.user
+      });
+    } catch (error) {
+      res.status(401).json({
+        success: false,
+        message: error.message || "Connexion échouée !",
+      });
+    }
+};
