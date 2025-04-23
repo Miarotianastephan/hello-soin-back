@@ -12,7 +12,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(express.json());
 
+
 // Mise en place des routes
+app.use('/uploads', express.static('uploads')); // access public de l'url
 app.use('/validation',validationRoutes); // gestion des codes de vérification par mail
 app.use('/auth',authRoutes);
 
