@@ -8,6 +8,9 @@ const PractitionerInfo = require('./practitioner-info.model');
 const Speciality = require('./speciality.model');
 const PractSpeciality = require('./pract-speciality.model');
 const EmailValidationCode = require('./email-validation-code.model');
+const Formation = require('./formation.model');
+const FormationSupportDoc = require('./formation-support-doc.model');
+const FormationSpeciality = require('./formation-speciality.model');
 
 // Associations
 User.belongsTo(UserRole, { foreignKey: 'id_user_role', as: 'role' });
@@ -35,6 +38,22 @@ PractSpeciality.belongsTo(Speciality, { foreignKey: 'id_speciality' });
 PractitionerInfo.hasMany(PractSpeciality, { foreignKey: 'id_pract_info' });
 PractSpeciality.belongsTo(PractitionerInfo, { foreignKey: 'id_pract_info' });
 
+// Formation <-> PractitionerInfo
+Formation.belongsTo(PractitionerInfo, {foreignKey: 'id_pract_info', as: 'practitioner' });
+PractitionerInfo.hasMany(Formation, {foreignKey: 'id_pract_info', as: 'formations' });
+
+// FormationSupportDoc <-> Formation
+FormationSupportDoc.belongsTo(Formation, {foreignKey: 'id_formation', as: 'formation' });
+Formation.hasMany(FormationSupportDoc, {foreignKey: 'id_formation', as: 'support_docs' });
+
+// FormationSpeciality <-> Formation / PractSpeciality / PractitionerInfo
+FormationSpeciality.belongsTo(Formation, {foreignKey: 'id_formation', as: 'formation' });
+Formation.hasMany(FormationSpeciality, {foreignKey: 'id_formation', as: 'formation_specialities' });
+
+FormationSpeciality.belongsTo(PractSpeciality, {foreignKey: 'id_pract_speciality', as: 'pract_speciality' });
+
+FormationSpeciality.belongsTo(PractitionerInfo, {foreignKey: 'id_pract_info', as: 'practitioner' });
+
 // Exportation des modèles et de Sequelize
 module.exports = {
   sequelize,
@@ -43,5 +62,8 @@ module.exports = {
   PractitionerInfo,
   Speciality,
   PractSpeciality,
-  EmailValidationCode
+  EmailValidationCode,
+  Formation,
+  FormationSpeciality,
+  FormationSupportDoc
 };
