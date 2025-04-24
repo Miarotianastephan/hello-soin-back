@@ -12,57 +12,63 @@ const PractSpeciality = db.PractSpeciality;
 const User = db.User;
 
 exports.registerPraticien = async (requestData) => {
-    try {
-        
-        if (!(await isMailValidated(requestData.mail))) { // vérification si le mail est validée
-            throw new Error('Adresse mail non validée');
-        }
-        await UserService.checkExistEmail(requestData.mail);
+  try {
+    console.log("Début registerPraticien avec :", requestData);
 
-        const role = await UserRoleService.getRoleByName("praticien");
-        const roleId = role.id_user_role;
-        const hashedPassword = await bcrypt.hash(requestData.password, 10);
-        const dateInscri = new Date().toISOString().split('T')[0];
-        const data = {
-            firstname: requestData.firstname,
-            lastname: requestData.lastname,
-            mail: requestData.mail,
-            mobile_number: requestData.mobile_number,
-            situation: requestData.situation,
-            postal_code: requestData.postal_code,
-            city: requestData.city,
-            password: hashedPassword,
-            created_at: dateInscri,
-            id_user_role: roleId,
-        };
-        // ajout en tant que user
-        const user = await UserService.saveUser(data);
-        // ajout en tant que praticien
-        // + ajout du specialites par défaut du praticien
-        const practicien = { id_user: user.id_user,}
-        const specialities = requestData.id_speciality ? [requestData.id_speciality] : [];
-        const resultPraticien = await createPractitionerInfo(practicien, specialities);
-        // structurer la réponse pour retourner un token + user + profil praticien
-        const token = jwt.sign(
-            { id_user: user.id_user, role: user.id_user_role },
-            jwtSecret,
-            { expiresIn: '2h' }
-        ); 
-        const userData = user.toJSON();
-        delete userData.password;
-        // réponse finale pour manipulation des données
-        const result = {
-            message: 'Inscription réussie',
-            token,
-            user: userData,
-            praticien: resultPraticien
-        }
-        return result;
-    } catch (error) {
-        console.error("Erreur d'inscription du praticien");
-        throw error;
-    }
-}
+
+
+    await UserService.checkExistEmail(requestData.mail);
+    const role = await UserRoleService.getRoleByName("praticien");
+    const roleId = role.id_user_role;
+
+    const hashedPassword = await bcrypt.hash(requestData.password, 10);
+    const dateInscri = new Date().toISOString().split('T')[0];
+    const data = {
+      firstname: requestData.firstname,
+      lastname: requestData.lastname,
+      mail: requestData.mail,
+      mobile_number: requestData.mobile_number,
+      situation: requestData.situation,
+      postal_code: requestData.postal_code,
+      city: requestData.city,
+      password: hashedPassword,
+      created_at: dateInscri,
+      id_user_role: roleId,
+    };
+    console.log("Création de l'utilisateur :", data);
+
+    const user = await UserService.saveUser(data);
+    console.log("User créé :", user.toJSON());
+
+    const practicienData = { id_user: user.id_user };
+    const specialities = requestData.id_speciality ? [requestData.id_speciality] : [];
+    console.log("Création PractitionerInfo :", practicienData, specialities);
+
+    const resultPraticien = await createPractitionerInfo(practicienData, specialities);
+    console.log("PractitionerInfo créé :", resultPraticien.toJSON());
+
+    const token = jwt.sign(
+      { id_user: user.id_user, role: user.id_user_role },
+      jwtSecret,
+      { expiresIn: '2h' }
+    );
+
+    const userData = user.toJSON();
+    delete userData.password;
+
+    return {
+      message: 'Inscription réussie',
+      token,
+      user: userData,
+      praticien: resultPraticien
+    };
+
+  } catch (error) {
+    console.error("Erreur d'inscription du praticien :", error);
+    throw error;
+  }
+};
+
 
 async function createPractitionerInfo(data, specialityIds = []) {
     const transaction = await PractitionerInfo.sequelize.transaction();
