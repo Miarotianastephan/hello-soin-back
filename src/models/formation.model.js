@@ -5,7 +5,8 @@ const Formation = sequelize.define('Formation', {
   id_formation: {
     type: DataTypes.INTEGER,
     primaryKey: true,
-    autoIncrement: true,
+    autoIncrement: true,    // ← indispensable
+    allowNull: false
   },
   institution_name: {
     type: DataTypes.STRING(128),
