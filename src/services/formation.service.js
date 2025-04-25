@@ -2,7 +2,9 @@ const {
     Formation, 
     FormationSpeciality, 
     FormationSupportDoc,
-    PractitionerInfo
+    PractitionerInfo,
+    PractSpeciality,
+    Speciality
 } = require('../models');
 
 exports.findPraticienInfoById = async(id_user) => {
@@ -15,19 +17,37 @@ exports.findPraticienInfoById = async(id_user) => {
 exports.getAllFormationsByID = async (id_user) => {
     const pratInfo = await this.findPraticienInfoById(id_user);
     const id_pract_info = pratInfo.id_pract_info;
+
     return await Formation.findAll({
         where: { id_pract_info },
-        include: ['formation_specialities', 'support_docs']
-    })
+        include: [
+            {
+                association: 'formation_specialities',
+                include: [
+                    {
+                        association: 'pract_speciality',
+                        include: [
+                            {
+                                model: Speciality
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                association: 'support_docs'
+            }
+        ]
+    });
 }
 
-exports.createFormation = async (data, specialities = null, docs = []) => {
+exports.createFormation = async (data, specialities, docs = []) => {
     const transaction = await Formation.sequelize.transaction();
     try {
         const formation = await Formation.create(data, { transaction });
     
         // Lier les spécialités
-        if (specialities != null) {
+        // if (specialities) {
             // const specialitiesToInsert = specialities.map(id => ({
             const specialitiesToInsert = {
                 id_formation: formation.id_formation,
@@ -35,8 +55,8 @@ exports.createFormation = async (data, specialities = null, docs = []) => {
                 id_pract_info: data.id_pract_info,
             }
             // }));
-            await FormationSpeciality.bulkCreate(specialitiesToInsert, { transaction });
-        }
+            await FormationSpeciality.create(specialitiesToInsert, { transaction });
+        // }
     
         // Ajouter les documents
         if (docs.length > 0) {
@@ -76,3 +96,33 @@ exports.deleteFormation = async (id) => {
 exports.updateFormation = async (id, updateData) => {
     // En cours
 };
+
+exports.getSpecialitiesByUserId = async(id_user) => {
+    try {
+        const practitionerInfo = await PractitionerInfo.findOne({
+            where: { id_user },
+        });
+    
+        if (!practitionerInfo) {
+            throw new Error('Praticien introuvable pour cet utilisateur');
+        }
+    
+        const practSpecialities = await PractSpeciality.findAll({
+            where: { id_pract_info: practitionerInfo.id_pract_info },
+            include: [
+            {
+                model: Speciality,
+                required: true
+            }
+            ]
+        });
+    
+        // On ne renvoie que les spécialités (optionnel : tu peux aussi renvoyer les PractSpecialities complètes)
+        //   const specialities = practSpecialities.map(ps => ps.Speciality);
+    
+        return practSpecialities;
+    } catch (error) {
+        console.error("Erreur lors de la récupération des spécialités :", error);
+        throw error;
+    }
+}

@@ -6,6 +6,7 @@ const errorHandler = require('./middlewares/errorHandler');
 const authRoutes = require('./routes/auth/auth-praticien.routes');
 const validationRoutes = require('./routes/mail/validation.routes');
 const profilPratiicienRoutes = require('./routes/profil-praticien/profil-praticien.routes');
+const specialityRoutes = require('./routes/publics/speciality.routes')
 
 const app = express();
 
@@ -28,13 +29,11 @@ app.get('/image/*filePath', (req, res, next) => {
       if (err) next(err);
     });
   });
-  
 
-
-app.use('/validation',validationRoutes); // gestion des codes de vérification par mail
+app.use('/specs', specialityRoutes);
+app.use('/validation',validationRoutes);
 app.use('/auth',authRoutes);
 app.use('/praticien',profilPratiicienRoutes);
-
 app.use(errorHandler);
 
 module.exports = app;

@@ -102,15 +102,18 @@ exports.getAllFormations= async (req, res) => {
 
 exports.createFormations = async (req, res) => {
     try {
-        const { body, files, user } = req;
-        // Étape 1 : Extraction des données
+        
+        // Log des données reçues
+        console.log('req.body:', req.body);
+        console.log('req.files:', req.files);
+        const { files, user } = req;
         const {
             institution_name,
             obtained_at,
             certification_name,
             certification_number,
             id_pract_speciality
-        } = body;
+        } = req.body;
 
         const pratInfo = await FormationService.findPraticienInfoById(user.id_user);
         const id_pract_info = pratInfo.id_pract_info;

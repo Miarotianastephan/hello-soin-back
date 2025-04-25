@@ -48,7 +48,7 @@ Formation.hasMany(FormationSupportDoc, {foreignKey: 'id_formation', as: 'support
 
 // FormationSpeciality <-> Formation / PractSpeciality / PractitionerInfo
 FormationSpeciality.belongsTo(Formation, {foreignKey: 'id_formation', as: 'formation' });
-Formation.hasMany(FormationSpeciality, {foreignKey: 'id_formation', as: 'formation_specialities' });
+Formation.hasOne(FormationSpeciality, {foreignKey: 'id_formation', as: 'formation_specialities' });
 
 FormationSpeciality.belongsTo(PractSpeciality, {foreignKey: 'id_pract_speciality', as: 'pract_speciality' });
 
