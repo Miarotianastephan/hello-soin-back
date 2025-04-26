@@ -5,4 +5,12 @@ const SpecialityController = require('../../controllers/speciality.controller');
 
 router.get('/specialities', SpecialityController.getAllSpeciality);
 
-module.exports = router
+// Retrieve specialities for the authenticated practitioner
+router.get('/specialities/praticien', SpecialityController.getSpecialityByPraticien);
+
+// Retrieve only the designation of a speciality by its ID
+router.get('/specialities/:id/designation', SpecialityController.getDesignationById);
+
+
+
+module.exports = router;

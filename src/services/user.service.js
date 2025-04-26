@@ -108,7 +108,7 @@ exports.getPractitionerInfo = async (id_user) => {
           'id_pract_info', 'profil_description', 'hook', 'siret',
           'facebook_link', 'linkedin_link', 'prat_started_at',
           'is_office_consult', 'is_visio_consult', 'is_home_consult',
-          'created_at', 'updated_at'
+          'created_at', 'updated_at', 'experiences_years'
         ]
       }]
     });
@@ -142,3 +142,58 @@ exports.saveUser = async (userData) => {
       throw error;
   }
 }
+
+// services/user.service.js
+// … au-dessus, vos autres exports …
+
+/**
+ * Ajoute les années d'expérience pour un praticien (set si jamais jamais défini).
+ * @param {number} id_user
+ * @param {number} years
+ * @returns {Promise<PractitionerInfo>}
+ */
+exports.addExperienceYears = async (id_user, years) => {
+  const practInfo = await PractitionerInfo.findOne({ where: { id_user } });
+  if (!practInfo) {
+    throw new Error('Fiche praticien introuvable.');
+  }
+  // Si c'est la première fois qu'on ajoute, on set la valeur
+  practInfo.experiences_years = years;
+  practInfo.updated_at = new Date();
+  await practInfo.save();
+  return practInfo;
+};
+
+/**
+ * Met à jour les années d'expérience pour un praticien.
+ * @param {number} id_user
+ * @param {number} years
+ * @returns {Promise<PractitionerInfo>}
+ */
+exports.updateExperienceYears = async (id_user, years) => {
+  const practInfo = await PractitionerInfo.findOne({ where: { id_user } });
+  if (!practInfo) {
+    throw new Error('Fiche praticien introuvable.');
+  }
+  practInfo.experiences_years = years;
+  practInfo.updated_at = new Date();
+  await practInfo.save();
+  return practInfo;
+};
+
+/**
+ * Récupère les années d'expérience pour un praticien.
+ * @param {number} id_user
+ * @returns {Promise<number>}
+ */
+exports.getExperienceYears = async (id_user) => {
+  const practInfo = await PractitionerInfo.findOne({
+    where: { id_user },
+    attributes: ['experiences_years']
+  });
+  if (!practInfo) {
+    throw new Error('Fiche praticien introuvable.');
+  }
+  return practInfo.experiences_years;
+};
+

@@ -8,8 +8,9 @@ exports.findAll = async() => {
     return data;
 }
 
-// exports.findSpecialityByPraticien = async(id_user) => {
-//     const data = await PractSpeciality.findAll({
-//         where:
-//     });
-// }
+// New: Fetch only the 'designation' attribute by primary key
+exports.findDesignationById = async (id) => {
+    return Speciality.findByPk(id, {
+      attributes: ['designation']
+    });
+  };

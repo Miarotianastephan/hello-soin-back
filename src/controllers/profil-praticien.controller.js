@@ -170,3 +170,51 @@ exports.deleteFormation = async (req, res) => {
         return res.status(500).json({ message: error.message || 'Erreur interne du serveur.' });   
     }
 }
+
+
+exports.addExperience = async (req, res) => {
+  try {
+    const id_user = req.user.id_user;
+    const { years } = req.body;
+    if (typeof years !== 'number') {
+      return res.status(400).json({ success: false, message: 'Le champ years doit être un nombre.' });
+    }
+    const practInfo = await UserService.addExperienceYears(id_user, years);
+    return res.status(201).json({ success: true, data: practInfo, message: 'Années d\'expérience ajoutées.' });
+  } catch (error) {
+    console.error('Erreur addExperience :', error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * PUT /update-experience
+ */
+exports.updateExperience = async (req, res) => {
+  try {
+    const id_user = req.user.id_user;
+    const { years } = req.body;
+    if (typeof years !== 'number') {
+      return res.status(400).json({ success: false, message: 'Le champ years doit être un nombre.' });
+    }
+    const practInfo = await UserService.updateExperienceYears(id_user, years);
+    return res.status(200).json({ success: true, data: practInfo, message: 'Années d\'expérience mises à jour.' });
+  } catch (error) {
+    console.error('Erreur updateExperience :', error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * GET /get-experience
+ */
+exports.getExperience = async (req, res) => {
+  try {
+    const id_user = req.user.id_user;
+    const years = await UserService.getExperienceYears(id_user);
+    return res.status(200).json({ success: true, data: { experiences_years: years } });
+  } catch (error) {
+    console.error('Erreur getExperience :', error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};

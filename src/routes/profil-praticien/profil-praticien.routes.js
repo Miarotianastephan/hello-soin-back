@@ -24,4 +24,10 @@ router.post("/delete-formation",ProfilPraticienController.deleteFormation);
 // Routes gestion specialités
 router.get("/get-speciality-praticien", SpecialityController.getSpecialityByPraticien);
 
+// Gestion des années d'expérience
+router.post('/add-experience', ProfilPraticienController.addExperience);
+router.put('/update-experience', ProfilPraticienController.updateExperience);
+router.get('/get-experience', ProfilPraticienController.getExperience);
+
+
 module.exports = router;

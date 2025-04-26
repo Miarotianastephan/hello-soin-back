@@ -61,6 +61,10 @@ const PractitionerInfo = sequelize.define('PractitionerInfo', {
   is_home_consult: {
     type: DataTypes.INTEGER,
     defaultValue: 0
+  },
+  experiences_years: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0
   }
 }, {
   tableName: 'practitioner_info',
