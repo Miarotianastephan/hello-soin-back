@@ -11,6 +11,10 @@ const EmailValidationCode = require('./email-validation-code.model');
 const Formation = require('./formation.model');
 const FormationSupportDoc = require('./formation-support-doc.model');
 const FormationSpeciality = require('./formation-speciality.model');
+const PractPaymentMethods = require('./parct-payment-methodes.model');
+const PractPatientType    = require('./pract-patient-type.model');
+const PaymentMethods      = require('./payment-methods.models');
+const PatientType         = require('./patient-type.model');
 
 // Associations
 User.belongsTo(UserRole, { foreignKey: 'id_user_role', as: 'role' });
@@ -54,6 +58,22 @@ FormationSpeciality.belongsTo(PractSpeciality, {foreignKey: 'id_pract_speciality
 
 FormationSpeciality.belongsTo(PractitionerInfo, {foreignKey: 'id_pract_info', as: 'practitioner' });
 
+// Un praticien a plusieurs liaisons à des modes de paiement
+PractitionerInfo.hasMany(PractPaymentMethods, {foreignKey: 'id_pract_info', as: 'paymentLinks' });
+PractPaymentMethods.belongsTo(PractitionerInfo, {foreignKey: 'id_pract_info', as: 'practitioner' });
+
+// Un lien de paiement désigne un mode de paiement
+PractPaymentMethods.belongsTo(PaymentMethods, { foreignKey: 'id_payment_method', as: 'method' });
+PaymentMethods.hasMany(PractPaymentMethods, { foreignKey: 'id_payment_method', as: 'practitionerLinks' });
+
+// Même principe pour les types de patients
+PractitionerInfo.hasMany(PractPatientType, { foreignKey: 'id_pract_info', as: 'patientLinks' });
+PractPatientType.belongsTo(PractitionerInfo, { foreignKey: 'id_pract_info', as: 'practitioner' });
+
+PractPatientType.belongsTo(PatientType, {foreignKey: 'id_patient_type',  as: 'type' });
+PatientType.hasMany(PractPatientType, {foreignKey: 'id_patient_type', as: 'practitionerLinks' });
+
+
 // Exportation des modèles et de Sequelize
 module.exports = {
   sequelize,
@@ -65,5 +85,9 @@ module.exports = {
   EmailValidationCode,
   Formation,
   FormationSpeciality,
-  FormationSupportDoc
+  FormationSupportDoc,
+  PractPaymentMethods,
+  PractPatientType,
+  PaymentMethods,
+  PatientType,
 };
