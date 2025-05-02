@@ -3,9 +3,9 @@ require('dotenv').config();
 const EmailSenderService = require('../services/email-sender.service');  // <-- ici !
 const twilio = require('twilio');
 
-const accountSid   = process.env.TWILIO_ACCOUNT_SID   || 'AC31a05c29b562d9618367cd25d47f6e72';
-const authToken    = process.env.TWILIO_AUTH_TOKEN    || 'a2f4a64e03f84a2392d76807f293653b';
-const twilioNumber = process.env.TWILIO_PHONE_NUMBER || '+18483530896';
+// const accountSid   = process.env.TWILIO_ACCOUNT_SID   || 'AC31a05c29b562d9618367cd25d47f6e72';
+// const authToken    = process.env.TWILIO_AUTH_TOKEN    || 'a2f4a64e03f84a2392d76807f293653b';
+// const twilioNumber = process.env.TWILIO_PHONE_NUMBER || '+18483530896';
 const client = twilio(accountSid, authToken);
 
 exports.sendCode = async (req, res) => {
