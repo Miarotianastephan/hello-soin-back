@@ -1,8 +1,5 @@
 // sendValidationEmail.js
 const nodemailer = require("nodemailer");
-const fs = require("fs");
-const path = require("path");
-
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
