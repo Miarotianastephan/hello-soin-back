@@ -45,6 +45,7 @@ router.get('/options/payment-methods', ProfilPraticienController.getPaymentOptio
 router.get('/options/patient-types', ProfilPraticienController.getPatientTypeOptions);
 // Gestion des approches du praticien 
 router.post('/add-approaches', TroublesSolutionsController.createPraticienApproaches); 
+router.post('/delete-approaches', TroublesSolutionsController.deletePraticienApproaches); 
 router.get('/get-approaches', TroublesSolutionsController.getPractitionerApproachesFormatted); 
 
 module.exports = router;

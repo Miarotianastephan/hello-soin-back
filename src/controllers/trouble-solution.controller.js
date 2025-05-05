@@ -44,11 +44,11 @@ exports.getPractitionerApproachesFormatted = async(req, res) => {
     }
 }
 
-exports.deletePraticienApproches = async(req, res) => {
+exports.deletePraticienApproaches = async(req, res) => {
     try {
         const id_user = req.user.id_user;
-        const { id_trouble } = req.body;
-        const response = await TroubleSolutionService.deletePraticienApproches(id_user, id_trouble);
+        const data_trouble = req.body;
+        const response = await TroubleSolutionService.deletePraticienApproches(id_user, data_trouble.id);
         return res.status(200).json(response);
     } catch (error) {
         return res.status(500).json({ message: "Erreur de suppression des approches", error: error.message });
