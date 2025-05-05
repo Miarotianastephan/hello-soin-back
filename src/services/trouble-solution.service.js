@@ -312,7 +312,38 @@ exports.updatePraticienApproaches = async (id_user, data_trouble) => {
       const updatedApproaches = [];
       // Étape 3 : Réinsérer les nouvelles approches
       for (const solution of data_trouble.solutions) {
+        let solutionId;
         const specialtyId = solution.specialty;
+        // Création de solution si nécessaire
+        if (solution.solution === undefined) {
+            if (!solution.name) {
+                throw new Error("La désignation de la solution est obligatoire");
+            }
+
+            // 1. Création de la nouvelle solution
+            const newSolution = await Solution.create(
+                { designation: solution.name },
+                { transaction }
+            );
+            solutionId = newSolution.id_solution;
+
+            // 2. Lien Solution-Spécialité
+            await SpecialitySolution.create({
+                id_speciality: specialtyId,
+                id_solution: solutionId,
+                validation_type: 'Pending'
+            }, { transaction });
+
+            // 3. Lien Solution-Trouble
+            await TroubleSolution.create({
+                id_trouble: data_trouble.id,
+                id_solution: solutionId,
+                id_speciality: specialtyId
+            }, { transaction });
+        } else {
+            solutionId = solution.solution;
+        }
+
         // Vérifier si la spécialité existe déjà pour ce praticien
         let practSpeciality = await PractSpeciality.findOne({
           where: {
@@ -333,7 +364,7 @@ exports.updatePraticienApproaches = async (id_user, data_trouble) => {
         const created = await PractitionerApproach.create({
           id_pract_info,
           id_trouble: data_trouble.id,
-          id_solution: solution.solution,
+          id_solution: solutionId,
           id_pract_speciality: practSpeciality.id_pract_speciality
         }, { transaction });
         updatedApproaches.push(created);
