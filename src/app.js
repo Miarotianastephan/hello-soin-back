@@ -14,6 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
+
 // Mise en place des routes
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads'))); 
 // exemple d'accès http://localhost:3000/uploads/documents/monfichier.pdf

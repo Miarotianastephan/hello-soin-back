@@ -57,3 +57,26 @@ exports.loginByEmail = async (req, res) => {
       });
     }
 };
+
+exports.verifyEmail = async (req, res) => {
+    try {
+      const { mail } = req.body;
+      // Appel au service qui renvoie { exists: true } ou { exists: false }
+      const { exists } = await AuthPraticienService.verifyEmail(mail);
+  
+      return res.status(200).json({
+        success: true,
+        exists,
+        message: exists 
+          ? "Cette adresse e‑mail est déjà enregistrée." 
+          : "Aucun compte trouvé avec cette adresse e‑mail."
+      });
+    } catch (error) {
+      console.error("Erreur lors de la vérification du mail :", error);
+      return res.status(500).json({
+        success: false,
+        message: "Impossible de vérifier l’adresse e‑mail pour le moment."
+      });
+    }
+  };
+  

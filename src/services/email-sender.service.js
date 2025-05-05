@@ -4,23 +4,24 @@ const db = require('../models');
 const sendValidationEmail = require('../utils/email-sender');
 const EmailValidationCode = db.EmailValidationCode;
 
-exports.sendCode = async (mail) => {
+exports.sendCode = async (mail, name) => {
   // 1. Génération et stockage du code
   const code = Math.floor(100000 + Math.random() * 900000).toString();
   const now = new Date();
-  const expiresAt = new Date(now.getTime() + 10 * 60000); // +10min
+  const expiresAt = new Date(now.getTime() + 10 * 60000); // +10 minutes
 
   await EmailValidationCode.create({
     mail,
     code,
     created_at: now,
-    expires_at: expiresAt
+    expires_at: expiresAt,
+    validated: false
   });
 
-  // 2. Envoi par e-mail
-  await sendValidationEmail(mail, code);
+  // 2. Envoi par e-mail (passage de name et code)
+  await sendValidationEmail(mail, name, code);
 
-  // 3. **Retourner** le code pour l’envoi SMS  
+  // 3. Retourne le code pour un éventuel envoi SMS
   return code;
 };
 
