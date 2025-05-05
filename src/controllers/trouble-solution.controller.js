@@ -54,3 +54,17 @@ exports.deletePraticienApproaches = async(req, res) => {
         return res.status(500).json({ message: "Erreur de suppression des approches", error: error.message });
     }
 }
+
+exports.updatePraticienApproaches = async(req, res) => {
+    try {
+        const id_user = req.user.id_user;
+        const data_trouble = req.body;
+        const manageTrouble = await TroubleSolutionService.updatePraticienApproaches(id_user, data_trouble);
+        return res.status(200).json({
+            manageTrouble,
+            message: "Mise a jour des troubles reussis !!"
+        });
+    } catch (error) {
+        return res.status(500).json({ message: "Erreur de la mise a jour des approches", error: error.message });
+    }
+}

@@ -8,6 +8,7 @@ const Trouble = db.Trouble;
 const Speciality = db.Speciality;
 const Solution = db.Solution;
 const TroubleCategory = db.TroubleCategory;
+const SpecialitySolution = db.SpecialitySolution;
 
 exports.getSolutionsGroupedByTrouble = async () => {
     const troubleSolutions = await TroubleSolution.findAll({
@@ -46,7 +47,7 @@ exports.getSolutionsGroupedByTrouble = async () => {
       }
   
       grouped[troubleId].solutions.push({
-        text: ts.solution.designation,
+        name: ts.solution.designation,
         solution: ts.solution.id_solution,
         specialty: ts.speciality.id_speciality
       });
@@ -66,14 +67,43 @@ exports.createPraticienApproaches = async (id_user, data_trouble) => {
         attributes: ['id_pract_info'],
         transaction
       });
-      if (!practInfo) {
-        throw new Error("Praticien introuvable.");
-      }
+      if (!practInfo) { throw new Error("Praticien introuvable."); }
       const id_pract_info = practInfo.id_pract_info;
       const createdApproaches = [];
   
       for (const solution of data_trouble.solutions) {
+        let solutionId;
         const specialtyId = solution.specialty;
+        // Création de solution si nécessaire
+        if (solution.solution === undefined) {
+            if (!solution.name) {
+                throw new Error("La désignation de la solution est obligatoire");
+            }
+
+            // 1. Création de la nouvelle solution
+            const newSolution = await Solution.create(
+                { designation: solution.name },
+                { transaction }
+            );
+            solutionId = newSolution.id_solution;
+
+            // 2. Lien Solution-Spécialité
+            await SpecialitySolution.create({
+                id_speciality: specialtyId,
+                id_solution: solutionId,
+                validation_type: 'Pending'
+            }, { transaction });
+
+            // 3. Lien Solution-Trouble
+            await TroubleSolution.create({
+                id_trouble: data_trouble.id,
+                id_solution: solutionId,
+                id_speciality: specialtyId
+            }, { transaction });
+        } else {
+            solutionId = solution.solution;
+        }
+        
         // Étape 2 : Vérifier si la spécialité existe déjà pour le praticien
         let practSpeciality = await PractSpeciality.findOne({
           where: {
@@ -92,10 +122,23 @@ exports.createPraticienApproaches = async (id_user, data_trouble) => {
           }, { transaction });
         }
         // Étape 4 : Créer l'approche du praticien
+          // Vérification de l'existence de la combinaison
+        const existing = await PractitionerApproach.findOne({
+            where: {
+                id_pract_info: id_pract_info,
+                id_trouble: data_trouble.id,
+                id_solution: solutionId,
+                id_pract_speciality: practSpeciality.id_pract_speciality
+            },
+            transaction
+        });
+        if (existing) {
+            throw new Error('Cette approches existe déjà dans la base de données');
+        }
         const created = await PractitionerApproach.create({
           id_pract_info: id_pract_info,
           id_trouble: data_trouble.id,
-          id_solution: solution.solution,
+          id_solution: solutionId,
           id_pract_speciality: practSpeciality.id_pract_speciality
         }, { transaction });
   
