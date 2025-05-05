@@ -6,7 +6,8 @@ const errorHandler = require('./middlewares/errorHandler');
 const authRoutes = require('./routes/auth/auth-praticien.routes');
 const validationRoutes = require('./routes/mail/validation.routes');
 const profilPratiicienRoutes = require('./routes/profil-praticien/profil-praticien.routes');
-const specialityRoutes = require('./routes/publics/speciality.routes')
+const specialityRoutes = require('./routes/publics/speciality.routes');
+const troubleSolutionRoutes = require('./routes/publics/troubles-solutions.routes');
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use('/specs', specialityRoutes);
 app.use('/validation',validationRoutes);
 app.use('/auth',authRoutes);
 app.use('/praticien',profilPratiicienRoutes);
+app.use('/trouble-solution',troubleSolutionRoutes);
 app.use(errorHandler);
 
 module.exports = app;

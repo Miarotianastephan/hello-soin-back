@@ -6,6 +6,7 @@ const ProfilPraticienController = require('../../controllers/profil-praticien.co
 const SpecialityController = require('../../controllers/speciality.controller');
 const uploadMiddleware = require('../../middlewares/upload-middlewares');
 const uploadDocs = require('../../middlewares/upload-multiple-middlewares');
+const TroublesSolutionsController = require('../../controllers/trouble-solution.controller');
 const uploadProfilPhoto = require('../../middlewares/upload-photo');
 
 // Middleware pour capturer le token
@@ -42,5 +43,8 @@ router.delete('/patient-types/:id', ProfilPraticienController.removePatientType)
 // Routes options globales
 router.get('/options/payment-methods', ProfilPraticienController.getPaymentOptions);
 router.get('/options/patient-types', ProfilPraticienController.getPatientTypeOptions);
+// Gestion des approches du praticien 
+router.post('/add-approaches', TroublesSolutionsController.createPraticienApproaches); 
+router.get('/get-approaches', TroublesSolutionsController.getPractitionerApproachesFormatted); 
 
 module.exports = router;

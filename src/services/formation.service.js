@@ -28,7 +28,8 @@ exports.getAllFormationsByID = async (id_user) => {
                         association: 'pract_speciality',
                         include: [
                             {
-                                model: Speciality
+                                model: Speciality, 
+                                as: 'speciality'
                             }
                         ]
                     }
