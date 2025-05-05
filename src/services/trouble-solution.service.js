@@ -120,6 +120,16 @@ exports.getPractitionerApproachesFormatted = async (id_user) => {
     if (!practInfo) {
       throw new Error('Praticien introuvable');
     }
+
+    const test = await PractSpeciality.findAll({
+        include: [
+          {
+            model: Speciality,
+            as: 'speciality'
+          }
+        ]
+      });
+    console.log(JSON.stringify(test, null, 2));
   
     const approaches = await PractitionerApproach.findAll({
       where: { id_pract_info: practInfo.id_pract_info },
@@ -144,7 +154,7 @@ exports.getPractitionerApproachesFormatted = async (id_user) => {
         {
           model: PractSpeciality,
           as: 'practSpeciality',
-          attributes: ['id_pract_speciality'],
+          attributes: ['id_pract_speciality', 'id_speciality'],
           include: [
             {
               model: Speciality,
@@ -155,7 +165,6 @@ exports.getPractitionerApproachesFormatted = async (id_user) => {
         }
       ]
     });
-  
     const categoryMap = {};
   
     for (const approach of approaches) {
@@ -163,6 +172,7 @@ exports.getPractitionerApproachesFormatted = async (id_user) => {
       const category = trouble.category;
       const speciality = practSpeciality?.speciality;
   
+    //   console.log(practSpeciality);
       if (!categoryMap[category.id_trouble_category]) {
         categoryMap[category.id_trouble_category] = {
           id: category.id_trouble_category,

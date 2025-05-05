@@ -42,7 +42,7 @@ Speciality.belongsToMany(PractitionerInfo, {
 });
 
 // Associations directes pour PractSpeciality
-Speciality.hasMany(PractSpeciality, { foreignKey: 'id_speciality' });
+Speciality.hasMany(PractSpeciality, { foreignKey: 'id_speciality', as: 'practSpecialities' });
 PractSpeciality.belongsTo(Speciality, { foreignKey: 'id_speciality', as: 'speciality' });
 
 PractitionerInfo.hasMany(PractSpeciality, { foreignKey: 'id_pract_info' });

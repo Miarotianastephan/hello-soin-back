@@ -15,15 +15,18 @@ const Speciality = sequelize.define('Speciality', {
   description: {
     type: DataTypes.STRING(256),
     allowNull: true,     // ← ici on passe à true
-  }
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  deleted_at: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
 }, {
   tableName: 'specialities',
-  timestamps: true,
-  createdAt: 'created_at',
-  updatedAt: false,
-  paranoid: true,
-  deletedAt: 'deleted_at',
-  underscored: true
+  timestamps: false,
 });
 
 module.exports = Speciality;
