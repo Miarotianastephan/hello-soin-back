@@ -175,3 +175,12 @@ exports.loginByEmail = async (mail) => {
       throw error;
     }
   };
+
+  
+exports.verifyEmail = async (mail) => {
+  // Recherche simple sans lever d'exception
+  const user = await User.findOne({ where: { mail } });
+
+  // exists = true s’il y a déjà un user avec ce mail
+  return { exists: !!user };
+};
