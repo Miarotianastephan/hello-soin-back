@@ -1,24 +1,29 @@
+// services/email-sender.service.js
 const { Op } = require('sequelize');
 const db = require('../models');
-
-
 const sendValidationEmail = require('../utils/email-sender');
 const EmailValidationCode = db.EmailValidationCode;
 
-exports.sendCode = async(mail) => {
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    const now = new Date();
-    const expiresAt = new Date(now.getTime() + 10 * 60000); // expire dans 10 minutes
-    
-    await EmailValidationCode.create({
-        mail,
-        code,
-        created_at: now,
-        expires_at: expiresAt
-    });
-  
-    await sendValidationEmail(mail, code);
-}
+exports.sendCode = async (mail) => {
+  // 1. Génération et stockage du code
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + 10 * 60000); // +10min
+
+  await EmailValidationCode.create({
+    mail,
+    code,
+    created_at: now,
+    expires_at: expiresAt
+  });
+
+  // 2. Envoi par e-mail
+  await sendValidationEmail(mail, code);
+
+  // 3. **Retourner** le code pour l’envoi SMS  
+  return code;
+};
+
 
 exports.verifyCode = async(mail, code) => {
   const record = await EmailValidationCode.findOne({

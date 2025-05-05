@@ -65,6 +65,10 @@ const PractitionerInfo = sequelize.define('PractitionerInfo', {
   experiences_years: {
     type: DataTypes.INTEGER,
     defaultValue: 0
+  },
+  experiences_date: {
+    type: DataTypes.DATE,
+    allowNull: true
   }
 }, {
   tableName: 'practitioner_info',

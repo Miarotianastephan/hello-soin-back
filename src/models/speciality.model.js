@@ -1,3 +1,4 @@
+// models/speciality.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database').sequelize;
 
@@ -13,19 +14,19 @@ const Speciality = sequelize.define('Speciality', {
   },
   description: {
     type: DataTypes.STRING(256),
-    allowNull: false,
-  },
-  deleted_at: {
-    type: DataTypes.DATE,
-    allowNull: false,
+    allowNull: true,     // ← ici on passe à true
   },
   created_at: {
     type: DataTypes.DATE,
-    allowNull: false,
+    allowNull: true
+  },
+  deleted_at: {
+    type: DataTypes.DATE,
+    allowNull: true
   },
 }, {
   tableName: 'specialities',
-  timestamps: false, // car les colonnes de dates ne sont pas les timestamps Sequelize standards
+  timestamps: false,
 });
 
 module.exports = Speciality;

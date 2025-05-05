@@ -11,6 +11,10 @@ const EmailValidationCode = require('./email-validation-code.model');
 const Formation = require('./formation.model');
 const FormationSupportDoc = require('./formation-support-doc.model');
 const FormationSpeciality = require('./formation-speciality.model');
+const PractPaymentMethods = require('./parct-payment-methodes.model');
+const PractPatientType    = require('./pract-patient-type.model');
+const PaymentMethods      = require('./payment-methods.models');
+const PatientType         = require('./patient-type.model');
 const Solution = require('./solution.model');
 const SpecialitySolution = require('./speciality-solution.model');
 const Trouble = require('./trouble.model');
@@ -38,7 +42,7 @@ Speciality.belongsToMany(PractitionerInfo, {
 });
 
 // Associations directes pour PractSpeciality
-Speciality.hasMany(PractSpeciality, { foreignKey: 'id_speciality' });
+Speciality.hasMany(PractSpeciality, { foreignKey: 'id_speciality', as: 'practSpecialities' });
 PractSpeciality.belongsTo(Speciality, { foreignKey: 'id_speciality', as: 'speciality' });
 
 PractitionerInfo.hasMany(PractSpeciality, { foreignKey: 'id_pract_info' });
@@ -59,6 +63,22 @@ Formation.hasOne(FormationSpeciality, {foreignKey: 'id_formation', as: 'formatio
 FormationSpeciality.belongsTo(PractSpeciality, {foreignKey: 'id_pract_speciality', as: 'pract_speciality' });
 
 FormationSpeciality.belongsTo(PractitionerInfo, {foreignKey: 'id_pract_info', as: 'practitioner' });
+
+// Un praticien a plusieurs liaisons à des modes de paiement
+PractitionerInfo.hasMany(PractPaymentMethods, {foreignKey: 'id_pract_info', as: 'paymentLinks' });
+PractPaymentMethods.belongsTo(PractitionerInfo, {foreignKey: 'id_pract_info', as: 'practitioner' });
+
+// Un lien de paiement désigne un mode de paiement
+PractPaymentMethods.belongsTo(PaymentMethods, { foreignKey: 'id_payment_method', as: 'method' });
+PaymentMethods.hasMany(PractPaymentMethods, { foreignKey: 'id_payment_method', as: 'practitionerLinks' });
+
+// Même principe pour les types de patients
+PractitionerInfo.hasMany(PractPatientType, { foreignKey: 'id_pract_info', as: 'patientLinks' });
+PractPatientType.belongsTo(PractitionerInfo, { foreignKey: 'id_pract_info', as: 'practitioner' });
+
+PractPatientType.belongsTo(PatientType, {foreignKey: 'id_patient_type',  as: 'type' });
+PatientType.hasMany(PractPatientType, {foreignKey: 'id_patient_type', as: 'practitionerLinks' });
+
 
 Solution.hasMany(SpecialitySolution, {foreignKey: 'id_solution', as: 'specialitySolutions'});
 
@@ -91,6 +111,10 @@ module.exports = {
   Formation,
   FormationSpeciality,
   FormationSupportDoc,
+  PractPaymentMethods,
+  PractPatientType,
+  PaymentMethods,
+  PatientType,
   Solution,
   SpecialitySolution,
   TroubleCategory,

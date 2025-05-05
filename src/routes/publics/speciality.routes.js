@@ -10,7 +10,7 @@ router.get('/specialities/praticien', SpecialityController.getSpecialityByPratic
 
 // Retrieve only the designation of a speciality by its ID
 router.get('/specialities/:id/designation', SpecialityController.getDesignationById);
-
+router.post('/addSpeciality', SpecialityController.createSpeciality);
 
 
 module.exports = router;

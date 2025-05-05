@@ -120,6 +120,16 @@ exports.getPractitionerApproachesFormatted = async (id_user) => {
     if (!practInfo) {
       throw new Error('Praticien introuvable');
     }
+
+    const test = await PractSpeciality.findAll({
+        include: [
+          {
+            model: Speciality,
+            as: 'speciality'
+          }
+        ]
+      });
+    console.log(JSON.stringify(test, null, 2));
   
     const approaches = await PractitionerApproach.findAll({
       where: { id_pract_info: practInfo.id_pract_info },
@@ -144,7 +154,7 @@ exports.getPractitionerApproachesFormatted = async (id_user) => {
         {
           model: PractSpeciality,
           as: 'practSpeciality',
-          attributes: ['id_pract_speciality'],
+          attributes: ['id_pract_speciality', 'id_speciality'],
           include: [
             {
               model: Speciality,
@@ -155,7 +165,6 @@ exports.getPractitionerApproachesFormatted = async (id_user) => {
         }
       ]
     });
-  
     const categoryMap = {};
   
     for (const approach of approaches) {
@@ -163,6 +172,7 @@ exports.getPractitionerApproachesFormatted = async (id_user) => {
       const category = trouble.category;
       const speciality = practSpeciality?.speciality;
   
+    //   console.log(practSpeciality);
       if (!categoryMap[category.id_trouble_category]) {
         categoryMap[category.id_trouble_category] = {
           id: category.id_trouble_category,
@@ -225,6 +235,69 @@ exports.deletePraticienApproches = async (id_user, id_trouble) => {
         success: true,
         message: `${deletedCount} approche(s) supprimée(s).`
       };
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+};
+
+// Update des approches 
+exports.updatePraticienApproaches = async (id_user, data_trouble) => {
+    const transaction = await sequelize.transaction();
+  
+    try {
+      // Étape 1 : Récupérer les infos du praticien
+      const practInfo = await PractitionerInfo.findOne({
+        where: { id_user },
+        attributes: ['id_pract_info'],
+        transaction
+      });
+      if (!practInfo) {
+        throw new Error("Praticien introuvable.");
+      }
+      const id_pract_info = practInfo.id_pract_info;
+  
+      // Étape 2 : Supprimer les approches existantes pour le trouble donné
+      await PractitionerApproach.destroy({
+        where: {
+          id_pract_info,
+          id_trouble: data_trouble.id
+        },
+        transaction
+      });
+
+      const updatedApproaches = [];
+      // Étape 3 : Réinsérer les nouvelles approches
+      for (const solution of data_trouble.solutions) {
+        const specialtyId = solution.specialty;
+        // Vérifier si la spécialité existe déjà pour ce praticien
+        let practSpeciality = await PractSpeciality.findOne({
+          where: {
+            id_speciality: specialtyId,
+            id_pract_info
+          },
+          transaction
+        });
+        if (!practSpeciality) {
+          practSpeciality = await PractSpeciality.create({
+            id_speciality: specialtyId,
+            id_pract_info,
+            default_fee_value: null,
+            is_main: 0
+          }, { transaction });
+        }
+        // Créer la nouvelle approche
+        const created = await PractitionerApproach.create({
+          id_pract_info,
+          id_trouble: data_trouble.id,
+          id_solution: solution.solution,
+          id_pract_speciality: practSpeciality.id_pract_speciality
+        }, { transaction });
+        updatedApproaches.push(created);
+      }
+  
+      await transaction.commit();
+      return updatedApproaches;
     } catch (error) {
       await transaction.rollback();
       throw error;

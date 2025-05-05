@@ -13,14 +13,14 @@ const uploadProfilPhoto = require('../../middlewares/upload-photo');
 router.use(middleware_global);
 
 // Routes gestion de profil
-router.post("/complete-profil",uploadProfilPhoto,ProfilPraticienController.completeProfil);
-router.get("/get-info-praticien",uploadMiddleware.any(), ProfilPraticienController.getInfoPraticien);
+router.post("/complete-profil", uploadProfilPhoto, ProfilPraticienController.completeProfil);
+router.get("/get-info-praticien", uploadMiddleware.any(), ProfilPraticienController.getInfoPraticien);
 
 // Routes gestion des formations
-router.get("/getall-formations",ProfilPraticienController.getAllFormations);
+router.get("/getall-formations", ProfilPraticienController.getAllFormations);
 router.post("/add-formations", uploadDocs.array('support_docs', 5), ProfilPraticienController.createFormations);
-router.post("/delete-formation",ProfilPraticienController.deleteFormation);
-// router.post("/update-formation",ProfilPraticienController.updateFormation); ENCORE A DEVELOPPER
+router.post("/delete-formation", ProfilPraticienController.deleteFormation);
+// router.post("/update-formation", ProfilPraticienController.updateFormation); // ENCORE A DEVELOPPER
 
 // Routes gestion specialités
 router.get("/get-speciality-praticien", SpecialityController.getSpecialityByPraticien);
@@ -30,8 +30,22 @@ router.post('/add-experience', ProfilPraticienController.addExperience);
 router.put('/update-experience', ProfilPraticienController.updateExperience);
 router.get('/get-experience', ProfilPraticienController.getExperience);
 
+// Routes gestion des modes de paiement
+router.get('/payment-methods', ProfilPraticienController.getPaymentMethods);
+router.post('/payment-methods', ProfilPraticienController.setPaymentMethods);
+router.delete('/payment-methods/:id', ProfilPraticienController.removePaymentMethod);
+
+// Routes gestion des types de patients
+router.get('/patient-types', ProfilPraticienController.getPatientTypes);
+router.post('/patient-types', ProfilPraticienController.setPatientTypes);
+router.delete('/patient-types/:id', ProfilPraticienController.removePatientType);
+
+// Routes options globales
+router.get('/options/payment-methods', ProfilPraticienController.getPaymentOptions);
+router.get('/options/patient-types', ProfilPraticienController.getPatientTypeOptions);
 // Gestion des approches du praticien 
 router.post('/add-approaches', TroublesSolutionsController.createPraticienApproaches); 
+router.post('/delete-approaches', TroublesSolutionsController.deletePraticienApproaches); 
 router.get('/get-approaches', TroublesSolutionsController.getPractitionerApproachesFormatted); 
 
 module.exports = router;

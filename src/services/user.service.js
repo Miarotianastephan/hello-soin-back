@@ -2,6 +2,10 @@
 const db = require('../models');
 const User = db.User;
 const PractitionerInfo = db.PractitionerInfo;
+const PractPaymentMethods = db.PractPaymentMethods;
+const PaymentMethods      = db.PaymentMethods;
+const PractPatientType    = db.PractPatientType;
+const PatientType         = db.PatientType;
 
 /**
  * Complète ou met à jour les informations utilisateur et praticien.
@@ -58,14 +62,14 @@ exports.completeInformation = async (userData, isCompletion) => {
     let practInfo = await PractitionerInfo.findOne({ where: { id_user } });
 
     if (!practInfo) {
-      // Création lors de la première complétion
+      // Création initiale
       const createData = {
         id_user,
         siret,
         profil_description: isCompletion ? null : profil_description,
         facebook_link: isCompletion ? null : facebook_link,
         linkedin_link: isCompletion ? null : linkedin_link,
-        prat_started_at: isCompletion ? new Date() : null,
+        prat_started_at: new Date(),
         is_office_consult,
         is_visio_consult,
         is_home_consult,
@@ -74,13 +78,20 @@ exports.completeInformation = async (userData, isCompletion) => {
       };
       practInfo = await PractitionerInfo.create(createData);
     } else {
-      // Mise à jour
-      const updateData = isCompletion
-        ? { siret, is_office_consult, is_visio_consult, is_home_consult, updated_at: new Date() }
-        : { profil_description, facebook_link, linkedin_link, siret, is_office_consult, is_visio_consult, is_home_consult, updated_at: new Date() };
+      // Mise à jour complète avec toutes les colonnes
+      const updateData = {
+        siret,
+        profil_description,
+        facebook_link,
+        linkedin_link,
+        is_office_consult,
+        is_visio_consult,
+        is_home_consult,
+        updated_at: new Date()
+      };
       await practInfo.update(updateData);
     }
-
+  
     return { success: true, message: 'Informations utilisateur et praticien enregistrées avec succès.' };
   } catch (error) {
     console.error('Erreur completeInformation :', error);
@@ -108,7 +119,7 @@ exports.getPractitionerInfo = async (id_user) => {
           'id_pract_info', 'profil_description', 'hook', 'siret',
           'facebook_link', 'linkedin_link', 'prat_started_at',
           'is_office_consult', 'is_visio_consult', 'is_home_consult',
-          'created_at', 'updated_at', 'experiences_years'
+          'created_at', 'updated_at', 'experiences_years', 'experiences_date'
         ]
       }]
     });
@@ -146,54 +157,183 @@ exports.saveUser = async (userData) => {
 // services/user.service.js
 // … au-dessus, vos autres exports …
 
-/**
- * Ajoute les années d'expérience pour un praticien (set si jamais jamais défini).
- * @param {number} id_user
- * @param {number} years
- * @returns {Promise<PractitionerInfo>}
- */
-exports.addExperienceYears = async (id_user, years) => {
-  const practInfo = await PractitionerInfo.findOne({ where: { id_user } });
-  if (!practInfo) {
-    throw new Error('Fiche praticien introuvable.');
+const calculateExperienceYears = (startDate) => {
+  if (!startDate) return 0;
+  const start = new Date(startDate);
+  const today = new Date();
+  
+  if (start > today) return 0;
+
+  let years = today.getFullYear() - start.getFullYear();
+  const monthDiff = today.getMonth() - start.getMonth();
+  
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < start.getDate())) {
+    years--;
   }
-  // Si c'est la première fois qu'on ajoute, on set la valeur
-  practInfo.experiences_years = years;
-  practInfo.updated_at = new Date();
+  
+  return years < 0 ? 0 : years;
+};
+
+// Modification des fonctions existantes
+exports.addExperienceYears = async (id_user, start_date) => {
+  const practInfo = await PractitionerInfo.findOne({ where: { id_user } });
+  if (!practInfo) throw new Error('Fiche praticien introuvable.');
+
+  practInfo.experiences_date = start_date;
+  practInfo.experiences_years = calculateExperienceYears(start_date);
   await practInfo.save();
   return practInfo;
 };
 
-/**
- * Met à jour les années d'expérience pour un praticien.
- * @param {number} id_user
- * @param {number} years
- * @returns {Promise<PractitionerInfo>}
- */
-exports.updateExperienceYears = async (id_user, years) => {
+exports.updateExperienceYears = async (id_user, start_date) => {
   const practInfo = await PractitionerInfo.findOne({ where: { id_user } });
-  if (!practInfo) {
-    throw new Error('Fiche praticien introuvable.');
-  }
-  practInfo.experiences_years = years;
-  practInfo.updated_at = new Date();
+  if (!practInfo) throw new Error('Fiche praticien introuvable.');
+
+  practInfo.experiences_date = start_date;
+  practInfo.experiences_years = calculateExperienceYears(start_date);
   await practInfo.save();
   return practInfo;
 };
 
-/**
- * Récupère les années d'expérience pour un praticien.
- * @param {number} id_user
- * @returns {Promise<number>}
- */
+// Version corrigée de getExperienceYears (supprimer la duplication)
 exports.getExperienceYears = async (id_user) => {
   const practInfo = await PractitionerInfo.findOne({
     where: { id_user },
-    attributes: ['experiences_years']
+    attributes: ['experiences_years', 'experiences_date']
   });
-  if (!practInfo) {
-    throw new Error('Fiche praticien introuvable.');
+  
+  if (!practInfo) throw new Error('Fiche praticien introuvable.');
+  
+  return {
+    experiences_years: practInfo.experiences_years,
+    start_date: practInfo.experiences_date?.split('T')[0].slice(0,7)
+  };
+};
+
+/**
+ * Récupère les modes de paiement d’un praticien via hasMany/belongsTo.
+ */
+exports.getPaymentMethodsByPractitioner = async (id_user) => {
+  const practInfo = await PractitionerInfo.findOne({
+    where: { id_user },
+    include: [{
+      model: PractPaymentMethods,
+      as: 'paymentLinks',
+      include: [{
+        model: PaymentMethods,
+        as: 'method'
+      }]
+    }]
+  });
+  if (!practInfo) throw new Error('Fiche praticien introuvable.');
+  // on ne renvoie que les objets PaymentMethods
+  return practInfo.paymentLinks.map(link => link.method);
+};
+
+/**
+ * Remplace entièrement la liste des modes de paiement.
+ */
+exports.setPaymentMethodsForPractitioner = async (id_user, paymentMethodIds) => {
+  const practInfo = await PractitionerInfo.findOne({ where: { id_user } });
+  if (!practInfo) throw new Error('Fiche praticien introuvable.');
+
+  // Supprime tout d’abord
+  await PractPaymentMethods.destroy({ where: { id_pract_info: practInfo.id_pract_info } });
+  // Puis recrée
+  const bulk = paymentMethodIds.map(id_pm => ({
+    id_pract_info: practInfo.id_pract_info,
+    id_payment_method: id_pm
+  }));
+  if (bulk.length) await PractPaymentMethods.bulkCreate(bulk);
+};
+
+/**
+ * Supprime un seul mode de paiement.
+ */
+exports.removePaymentMethodFromPractitioner = async (id_user, paymentMethodId) => {
+  const practInfo = await PractitionerInfo.findOne({ where: { id_user } });
+  if (!practInfo) throw new Error('Fiche praticien introuvable.');
+
+  await PractPaymentMethods.destroy({
+    where: {
+      id_pract_info: practInfo.id_pract_info,
+      id_payment_method: paymentMethodId
+    }
+  });
+};
+
+/**
+ * Récupère les types de patients d’un praticien.
+ */
+exports.getPatientTypesByPractitioner = async (id_user) => {
+  const practInfo = await PractitionerInfo.findOne({
+    where: { id_user },
+    include: [{
+      model: PractPatientType,
+      as: 'patientLinks',
+      include: [{
+        model: PatientType,
+        as: 'type'
+      }]
+    }]
+  });
+  if (!practInfo) throw new Error('Fiche praticien introuvable.');
+  return practInfo.patientLinks.map(link => link.type);
+};
+
+/**
+ * Remplace la liste des types de patients.
+ */
+exports.setPatientTypesForPractitioner = async (id_user, patientTypeIds) => {
+  const practInfo = await PractitionerInfo.findOne({ where: { id_user } });
+  if (!practInfo) throw new Error('Fiche praticien introuvable.');
+
+  await PractPatientType.destroy({ where: { id_pract_info: practInfo.id_pract_info } });
+  const bulk = patientTypeIds.map(id_pt => ({
+    id_pract_info: practInfo.id_pract_info,
+    id_patient_type: id_pt
+  }));
+  if (bulk.length) await PractPatientType.bulkCreate(bulk);
+};
+
+/**
+ * Supprime un type de patient.
+ */
+exports.removePatientTypeFromPractitioner = async (id_user, patientTypeId) => {
+  const practInfo = await PractitionerInfo.findOne({ where: { id_user } });
+  if (!practInfo) throw new Error('Fiche praticien introuvable.');
+
+  await PractPatientType.destroy({
+    where: {
+      id_pract_info: practInfo.id_pract_info,
+      id_patient_type: patientTypeId
+    }
+  });
+};
+
+/**
+ * Récupère tous les modes de paiement disponibles.
+ * @returns {Promise<Array<PaymentMethods>>}
+ */
+exports.getAllPaymentMethods = async () => {
+  try {
+    return await PaymentMethods.findAll();
+  } catch (error) {
+    console.error('Erreur getAllPaymentMethods :', error);
+    throw error;
   }
-  return practInfo.experiences_years;
+};
+
+/**
+ * Récupère tous les types de patients disponibles.
+ * @returns {Promise<Array<PatientType>>}
+ */
+exports.getAllPatientTypes = async () => {
+  try {
+    return await PatientType.findAll();
+  } catch (error) {
+    console.error('Erreur getAllPatientTypes :', error);
+    throw error;
+  }
 };
 

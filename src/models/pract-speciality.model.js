@@ -1,7 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database').sequelize;
-const Speciality = require('./speciality.model');
-const PractitionerInfo = require('./practitioner-info.model');
 
 const PractSpeciality = sequelize.define('PractSpeciality', {
   id_pract_speciality: {

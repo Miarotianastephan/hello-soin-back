@@ -1,6 +1,4 @@
-// speciality.controller.js
 const SpecialityService = require('../services/speciality.service');
-const FormationService = require('../services/formation.service');
 
 exports.getAllSpeciality = async (req, res) => {
   try {
@@ -26,16 +24,13 @@ exports.getSpecialityByPraticien = async (req, res) => {
   }
 };
 
-// New: Get only the 'designation' field for a speciality by its ID
 exports.getDesignationById = async (req, res) => {
   try {
     const { id } = req.params;
     const speciality = await SpecialityService.findDesignationById(id);
-
     if (!speciality) {
       return res.status(404).json({ message: "Spécialité non trouvée" });
     }
-
     return res.status(200).json({
       data: { designation: speciality.designation },
       message: "Récupération de la désignation de la spécialité"
@@ -46,3 +41,23 @@ exports.getDesignationById = async (req, res) => {
   }
 };
 
+// ✨ Nouvelle action : créer une spécialité
+exports.createSpeciality = async (req, res) => {
+  try {
+    const { designation } = req.body;
+
+    if (!designation || typeof designation !== 'string') {
+      return res.status(400).json({ message: "Le champ 'designation' est requis et doit être une chaîne de caractères." });
+    }
+
+    const newSpeciality = await SpecialityService.create({ designation });
+
+    return res.status(201).json({
+      data: newSpeciality,
+      message: "Création de la spécialité réussie"
+    });
+  } catch (error) {
+    console.error('Erreur création spécialité :', error);
+    return res.status(500).json({ message: "Impossible de créer la spécialité.", error: error.message });
+  }
+};
