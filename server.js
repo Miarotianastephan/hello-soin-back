@@ -8,6 +8,7 @@ async function startServer() {
   try {
     await sequelize.authenticate();
     console.log('Connexion à la base de données réussie.');
+    console.log('Nom de la base de donnée : '+ sequelize.connectionManager.config.database);
 
     app.listen(PORT, () => {
       console.log(`Serveur lancé sur le port ${PORT}`);
