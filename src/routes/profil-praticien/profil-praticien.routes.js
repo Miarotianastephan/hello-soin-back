@@ -3,6 +3,7 @@ const router = express.Router();
 const { middleware_global } = require('../../middlewares/auth-middlewares');
 
 const ProfilPraticienController = require('../../controllers/profil-praticien.controller');
+const FormationController = require('../../controllers/formation.controller');
 const SpecialityController = require('../../controllers/speciality.controller');
 const uploadMiddleware = require('../../middlewares/upload-middlewares');
 const uploadDocs = require('../../middlewares/upload-multiple-middlewares');
@@ -16,10 +17,9 @@ router.post("/complete-profil", uploadProfilPhoto, ProfilPraticienController.com
 router.get("/get-info-praticien", uploadMiddleware.any(), ProfilPraticienController.getInfoPraticien);
 
 // Routes gestion des formations
-router.get("/getall-formations", ProfilPraticienController.getAllFormations);
-router.post("/add-formations", uploadDocs.array('support_docs', 5), ProfilPraticienController.createFormations);
-router.post("/delete-formation", ProfilPraticienController.deleteFormation);
-// router.post("/update-formation", ProfilPraticienController.updateFormation); // ENCORE A DEVELOPPER
+router.get("/getall-formations", FormationController.getAllFormations);
+router.post("/add-formations", uploadDocs.array('support_docs', 5), FormationController.createFormations);
+router.post("/delete-formation", FormationController.deleteFormation);
 
 // Routes gestion specialités
 router.get("/get-speciality-praticien", SpecialityController.getSpecialityByPraticien);
